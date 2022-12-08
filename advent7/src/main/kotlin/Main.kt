@@ -23,8 +23,25 @@ data class Directory(
 
 fun main(args: Array<String>) {
     val lines = File("input.txt").readLines()
-
     val root = parseTree(lines)
+
+    val part1Answer = part1(root)
+    println("part1Answer: $part1Answer")
+}
+
+fun part1(root: Directory): Int {
+    val candidates = mutableListOf<Directory>()
+    traverse(root, candidates)
+    return candidates.sumOf { it.size }
+}
+
+fun traverse(directory: Directory, candidates: MutableList<Directory>) {
+    directory.files.values.filterIsInstance<Directory>().forEach {
+        if (it.size <= 100000) {
+            candidates.add(it)
+        }
+        traverse(it, candidates)
+    }
 }
 
 fun parseTree(lines: List<String>): Directory {
