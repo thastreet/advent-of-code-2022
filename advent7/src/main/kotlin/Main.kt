@@ -58,18 +58,16 @@ fun parseTree(lines: List<String>): Directory {
             "$" -> {
                 when (parts[1]) {
                     "cd" -> {
-                        if (parts[2] == "..") {
-                            directory = directory?.parent
+                        directory = if (parts[2] == "..") {
+                            directory?.parent
                         } else {
-                            directory =
-                                directory?.files?.values?.firstOrNull { it is Directory && it.name == parts[2] } as? Directory
-                                    ?: run {
-                                        Directory(parts[0], directory).also {
-                                            if (root == null) {
-                                                root = it
-                                            }
-                                        }
+                            directory?.files?.values
+                                ?.firstOrNull { it is Directory && it.name == parts[2] } as? Directory
+                                ?: Directory(parts[0], directory).also {
+                                    if (root == null) {
+                                        root = it
                                     }
+                                }
                         }
                     }
 
