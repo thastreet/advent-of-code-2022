@@ -19,6 +19,13 @@ data class Directory(
     var files: MutableMap<String, IFile> = mutableMapOf()
     override val size: Int
         get() = files.values.sumOf { it.size }
+
+    fun flatten(output: MutableList<Directory>) {
+        files.values.filterIsInstance<Directory>().forEach {
+            output.add(it)
+            it.flatten(output)
+        }
+    }
 }
 
 fun main(args: Array<String>) {
@@ -27,20 +34,33 @@ fun main(args: Array<String>) {
 
     val part1Answer = part1(root)
     println("part1Answer: $part1Answer")
+
+    val part2Answer = part2(root)
+    println("part2Answer: $part2Answer")
 }
 
 fun part1(root: Directory): Int {
     val candidates = mutableListOf<Directory>()
-    traverse(root, candidates)
+    findPart1Candidates(root, candidates)
     return candidates.sumOf { it.size }
 }
 
-fun traverse(directory: Directory, candidates: MutableList<Directory>) {
+fun part2(root: Directory): Int {
+    val directories = mutableListOf<Directory>()
+    root.flatten(directories)
+    directories.sortBy { it.size }
+
+    val unused = 70000000 - root.size
+    val needed = 30000000 - unused
+    return directories.first { it.size >= needed }.size
+}
+
+fun findPart1Candidates(directory: Directory, candidates: MutableList<Directory>) {
     directory.files.values.filterIsInstance<Directory>().forEach {
         if (it.size <= 100000) {
             candidates.add(it)
         }
-        traverse(it, candidates)
+        findPart1Candidates(it, candidates)
     }
 }
 
