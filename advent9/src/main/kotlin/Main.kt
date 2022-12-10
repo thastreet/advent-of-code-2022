@@ -37,6 +37,9 @@ fun main(args: Array<String>) {
 
     val part1Answer = part1(commands)
     println("part1Answer: $part1Answer")
+
+    val part2Answer = part2(commands)
+    println("part2Answer: $part2Answer")
 }
 
 fun parseCommands(lines: List<String>): List<Command> =
@@ -45,11 +48,52 @@ fun parseCommands(lines: List<String>): List<Command> =
         Command(parts[0][0], parts[1].toInt())
     }
 
-fun part1(commands: List<Command>): Int {
-    var head = Position(0, 0)
-    var tail = Position(0, 0)
+fun part1(commands: List<Command>): Int = simulate(commands, 1)
 
-    val tailVisited = mutableSetOf(tail)
+fun part2(commands: List<Command>): Int = simulate(commands, 9)
+
+fun simulate(commands: List<Command>, tailsCount: Int): Int {
+    var head = Position(0, 0)
+
+    val tails = MutableList(tailsCount) {
+        Position(0, 0)
+    }
+
+    val tailVisited = mutableSetOf(tails.last())
+
+    fun simulateNewPositions(position1: Position, position2: Position): Position {
+        val distance = position1.distanceFrom(position2)
+        var newPosition = position2
+
+        if (distance.horizontal > 1 || distance.horizontal < -1) {
+            newPosition = when {
+                distance.horizontal > 1 -> newPosition.incrementX()
+                else -> newPosition.decrementX()
+            }
+
+            when (distance.vertical) {
+                1 -> newPosition = newPosition.incrementY()
+                -1 -> newPosition = newPosition.decrementY()
+            }
+        } else if (distance.vertical > 1 || distance.vertical < -1) {
+            newPosition = when {
+                distance.vertical > 1 -> newPosition.incrementY()
+                else -> newPosition.decrementY()
+            }
+
+            when (distance.horizontal) {
+                1 -> newPosition = newPosition.incrementX()
+                -1 -> newPosition = newPosition.decrementX()
+            }
+        }
+
+        val newDistance = position1.distanceFrom(newPosition)
+        if (abs(newDistance.horizontal) > 1 && abs(newDistance.vertical) > 1) {
+            throw IllegalStateException()
+        }
+
+        return newPosition
+    }
 
     commands.forEach { command ->
         repeat(command.steps) {
@@ -60,35 +104,15 @@ fun part1(commands: List<Command>): Int {
                 'D' -> head = head.incrementY()
             }
 
-            val distance = head.distanceFrom(tail)
-
-            if (distance.horizontal > 1 || distance.horizontal < -1) {
-                tail = when {
-                    distance.horizontal > 1 -> tail.incrementX()
-                    else -> tail.decrementX()
-                }
-
-                when (distance.vertical) {
-                    1 -> tail = tail.incrementY()
-                    -1 -> tail = tail.decrementY()
-                }
-            } else if (distance.vertical > 1 || distance.vertical < -1) {
-                tail = when {
-                    distance.vertical > 1 -> tail.incrementY()
-                    else -> tail.decrementY()
-                }
-
-                when (distance.horizontal) {
-                    1 -> tail = tail.incrementX()
-                    -1 -> tail = tail.decrementX()
+            tails.forEachIndexed { index, position ->
+                if (index == 0) {
+                    tails[0] = simulateNewPositions(head, position)
+                } else {
+                    tails[index] = simulateNewPositions(tails[index - 1], tails[index])
                 }
             }
 
-            if (abs(distance.horizontal) > 1 && abs(distance.vertical) > 1) {
-                throw IllegalStateException()
-            }
-
-            tailVisited.add(tail)
+            tailVisited.add(tails.last())
         }
     }
 
