@@ -71,9 +71,9 @@ fun simulate(commands: List<Command>, tailsCount: Int): Int {
                 else -> newPosition.decrementX()
             }
 
-            when (distance.vertical) {
-                1 -> newPosition = newPosition.incrementY()
-                -1 -> newPosition = newPosition.decrementY()
+            when {
+                distance.vertical >= 1 -> newPosition = newPosition.incrementY()
+                distance.vertical <= -1 -> newPosition = newPosition.decrementY()
             }
         } else if (distance.vertical > 1 || distance.vertical < -1) {
             newPosition = when {
@@ -81,9 +81,9 @@ fun simulate(commands: List<Command>, tailsCount: Int): Int {
                 else -> newPosition.decrementY()
             }
 
-            when (distance.horizontal) {
-                1 -> newPosition = newPosition.incrementX()
-                -1 -> newPosition = newPosition.decrementX()
+            when {
+                distance.horizontal >= 1 -> newPosition = newPosition.incrementX()
+                distance.horizontal <= -1 -> newPosition = newPosition.decrementX()
             }
         }
 
