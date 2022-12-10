@@ -61,40 +61,6 @@ fun simulate(commands: List<Command>, tailsCount: Int): Int {
 
     val tailVisited = mutableSetOf(tails.last())
 
-    fun simulateNewPositions(position1: Position, position2: Position): Position {
-        val distance = position1.distanceFrom(position2)
-        var newPosition = position2
-
-        if (distance.horizontal > 1 || distance.horizontal < -1) {
-            newPosition = when {
-                distance.horizontal > 1 -> newPosition.incrementX()
-                else -> newPosition.decrementX()
-            }
-
-            when {
-                distance.vertical >= 1 -> newPosition = newPosition.incrementY()
-                distance.vertical <= -1 -> newPosition = newPosition.decrementY()
-            }
-        } else if (distance.vertical > 1 || distance.vertical < -1) {
-            newPosition = when {
-                distance.vertical > 1 -> newPosition.incrementY()
-                else -> newPosition.decrementY()
-            }
-
-            when {
-                distance.horizontal >= 1 -> newPosition = newPosition.incrementX()
-                distance.horizontal <= -1 -> newPosition = newPosition.decrementX()
-            }
-        }
-
-        val newDistance = position1.distanceFrom(newPosition)
-        if (abs(newDistance.horizontal) > 1 && abs(newDistance.vertical) > 1) {
-            throw IllegalStateException()
-        }
-
-        return newPosition
-    }
-
     commands.forEach { command ->
         repeat(command.steps) {
             when (command.direction) {
@@ -117,4 +83,38 @@ fun simulate(commands: List<Command>, tailsCount: Int): Int {
     }
 
     return tailVisited.size
+}
+
+fun simulateNewPositions(position1: Position, position2: Position): Position {
+    val distance = position1.distanceFrom(position2)
+    var newPosition = position2
+
+    if (distance.horizontal > 1 || distance.horizontal < -1) {
+        newPosition = when {
+            distance.horizontal > 1 -> newPosition.incrementX()
+            else -> newPosition.decrementX()
+        }
+
+        when {
+            distance.vertical >= 1 -> newPosition = newPosition.incrementY()
+            distance.vertical <= -1 -> newPosition = newPosition.decrementY()
+        }
+    } else if (distance.vertical > 1 || distance.vertical < -1) {
+        newPosition = when {
+            distance.vertical > 1 -> newPosition.incrementY()
+            else -> newPosition.decrementY()
+        }
+
+        when {
+            distance.horizontal >= 1 -> newPosition = newPosition.incrementX()
+            distance.horizontal <= -1 -> newPosition = newPosition.decrementX()
+        }
+    }
+
+    val newDistance = position1.distanceFrom(newPosition)
+    if (abs(newDistance.horizontal) > 1 && abs(newDistance.vertical) > 1) {
+        throw IllegalStateException()
+    }
+
+    return newPosition
 }
