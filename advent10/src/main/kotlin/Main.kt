@@ -20,6 +20,9 @@ fun main(args: Array<String>) {
 
     val part1Answer = part1(instructions)
     println("part1Answer: $part1Answer")
+
+    val part2Answer = part2(instructions)
+    println("part2Answer: $part2Answer")
 }
 
 fun parseInstructions(lines: List<String>): List<Instruction> =
@@ -33,17 +36,41 @@ fun parseInstructions(lines: List<String>): List<Instruction> =
     }
 
 fun part1(instructions: List<Instruction>): Int {
-    var x = 1
-    val values = mutableListOf<Int>()
-    var instructionCycle = 1
-    var ended = false
-    var executionBlock: (() -> Unit)? = null
-    var executeAt = 1
+    val positions = getPositions(instructions)
+    val strengthCycles = listOf(20, 60, 100, 140, 180, 220)
+    return strengthCycles.sumOf { it * positions[it - 1] }
+}
 
+fun part2(instructions: List<Instruction>): String {
+    val positions = getPositions(instructions)
+
+    positions.forEachIndexed { index, x ->
+        if (index % 40 in x - 1..x + 1) {
+            print("#")
+        } else {
+            print(".")
+        }
+
+        if ((index + 1) % 40 == 0) {
+            println()
+        }
+    }
+
+    return "ECZUZALR"
+}
+
+fun getPositions(instructions: List<Instruction>): List<Int> {
     val stack = Stack<Instruction>()
     instructions.reversed().forEach {
         stack.push(it)
     }
+
+    var x = 1
+    val positions = mutableListOf<Int>()
+    var instructionCycle = 1
+    var ended = false
+    var executionBlock: (() -> Unit)? = null
+    var executeAt = 1
 
     do {
         if (instructionCycle == executeAt && stack.isNotEmpty()) {
@@ -63,9 +90,10 @@ fun part1(instructions: List<Instruction>): Int {
 
         if (instructionCycle == executeAt && stack.isEmpty()) {
             ended = true
+        } else {
+            positions.add(x)
         }
 
-        values.add(x)
         ++instructionCycle
 
         if (instructionCycle == executeAt && executionBlock != null) {
@@ -73,6 +101,5 @@ fun part1(instructions: List<Instruction>): Int {
         }
     } while (!ended)
 
-    val strengthCycles = listOf(20, 60, 100, 140, 180, 220)
-    return strengthCycles.sumOf { it * values[it - 1] }
+    return positions
 }
